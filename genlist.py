@@ -223,12 +223,12 @@ hostname = os.uname()[1]
 outf = hostname + '.csv'
 
 with open(outf, 'w') as output:
-    hl_sit ='情境'
-    hl_pc = '分类'
-    hl_type ='告警类型'
-    hl_level = '告警等级'
-    hl_noti = '通知方式'
-    hl_sitdsc = '中文解释'
+    Hl_sit = 'situation'
+    Hl_pc = 'Classification'
+    Hl_type = 'alarm type'
+    Hl_level = 'alarm level'
+    Hl_noti = 'Notification method'
+    Hl_sitdsc = 'Chinese explanation'
 
 
     for pc in pcl:
@@ -241,10 +241,10 @@ with open(outf, 'w') as output:
             hl_pc += ',' + ','.join([pc for i in range(len(seq_head[pc]))])
 
     hl_sit += ',' + 'SIT_XT_UA_C8_Ping'
-    hl_sitdsc += ',' + '3分钟内Ping主机无响应'
-    hl_type += ',' + 'Ping'
-    hl_level += ',' + '3'
-    hl_noti += ',' + '邮件和短信通知'
+    Hl_sitdsc += ',' + 'Ping host is not responding within 3 minutes'
+    Hl_type += ',' + 'Ping'
+    Hl_level += ',' + '3'
+    Hl_noti += ',' + 'Mail and SMS notifications
     hl_pc += ',' + 'C8'
 
     for i in (hl_sit, hl_level, hl_noti, hl_type, hl_pc, hl_sitdsc):
