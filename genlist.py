@@ -7,6 +7,8 @@ __author__ = 'ibm_linh'
 # enrich situation level (2,3) and notification method(mail,sms)
 # 2014-07-15
 # add type for situation in sitdesc
+# 2019-10-09
+# translate chinese terms for european users
 #######################################################
 
 from bccomm import itmcomm
@@ -46,12 +48,11 @@ with open('hosts', 'r') as hosts:
     hostlist = [x.strip() for x in hosts.readlines()]
 
 
-## 生成数据结构outdict ,key为hostname
+## Generating data structures outdict ,keyforhostname
 ## hostA: {UX:[{sitdict1},{sitdict2}], UL:[{sitdict1},{sitdict2}] }
 ## hostB: {LZ:[{sitdict1},{sitdict2}], UD:[{sitdict1},{sitdict2}] }
 ## hostC: {UX:[{sitdict1},{sitdict2}], UL:[{sitdict1},{sitdict2}] }
-## UD和MQ包含多个实例的情况，为sitdict 增加实例名(instname)的key
-
+##UD and MQ contain multiple instances ，Add the key of the instance name (instname) for sitdict
 itmcomm.login('182.248.56.60', 'sysadmin', 'bcdctiv1')
 #itmcomm.login('182.248.6.217', 'sysadmin', 'tivoli')
 itmcomm.getipfile()
@@ -69,9 +70,9 @@ for host in hostlist:
         continue
     else:
         outdict[host] = {}
-        msl = viewnode_ret.keys()  # 获取OS节点下的子节点
+        msl = viewnode_ret.keys()  #Get the child nodes under the OS node
         for ms in msl:
-            pc = viewnode_ret.get(ms)  # 获取子节点的PC
+            pc = viewnode_ret.get(ms)  # Get the child node's PC
             log.info("TEMA: " + pc)
             listsit_ret = itmcomm.listsit(ms, pc, host)
             if listsit_ret is None:
@@ -92,15 +93,15 @@ if len(outdict) == 0:
 
 log.debug(outdict)
 
-### 从outdict 字典生成head字典. 作为表格的列头，
-### key 为pc, value 为set(situation), 涵盖ITM从host列表返回的同一PC类型所有situation
+### Generate a head dictionary from the outdict dictionary. As the column header of the table,
+### key is pc, value is set(situation), covering all the same PC types returned by ITM from the host list.
 ### UX: set(sit1,sit2...)
 ### UD: set(sit1,sit2...)
-### 规则1：PC种类按pcfilter列表遍历,只要有一个主机有PC类型sit存在, 该类型的set(sit)不为空
-### 规则2：如所有主机都没有pcfilter 列表里的某种类型sit存在，head字典将不包含该类pc的key,value
+### Rule 1: The PC type is traversed by the pcfilter list. As long as there is a host with a PC type sit, the set(sit) of this type is not empty.
+### Rule 2: If all hosts do not have a certain type of sit in the pcfilter list, the head dictionary will not contain the key of the class pc, value
 
-newhostlist = outdict.keys()  # newhostlist仅包含在此TEMS环境中存在的主机，hosts文件的子集
-newpcl = set()                # newpcl 包含outdict 中存在的pc, pcfilter列表的子集
+newhostlist = outdict.keys()  # Newhostlist contains only the hosts that exist in this TEMS environment, a subset of the hosts file
+newpcl = set()                # Newpcl contains a subset of pc, pcfilter lists present in outdict
 for host in newhostlist:
     newpcl.update(outdict[host].keys())
 
@@ -125,11 +126,12 @@ for host in newhostlist:
 
 log.debug(head)
 
-### 从head字典生成seq_head字典，
-### key为pc,value为list(situation),以sitdesc文件里的sit为第1优先放入list，剩余部分sort()排序
+
+### Generate a seq_head dictionary from the head dictionary,
+### key is pc, value is list(situation), the sit in the sitdesc file is the first priority into the list, and the remaining part sort()
 ### UX: [(sit1,sit1chn,sit1type,sit1level,sit1notification), (sit2,sit2chn,sit2type,sit2level,sit2notification)...]
 ### UD: [(sit1,sit1chn,sit1type,sit1level,sit1notification), (sit2,sit2chn,sit2type,sit2level,sit2notification)...]
-### 如sitdesc 文件中文解释为空，默认值设为'Non'
+### As the sitdesc file Chinese is empty, the default value is set to 'Non'
 
 seq_sitdesc = []
 with open('sitdesc', 'r') as sitfile:
@@ -147,12 +149,12 @@ for pc in newpcl:
     seq_head[pc] = []
     for (type, sit, desc) in seq_sitdesc:
         if sit in head[pc]:
-            seq_head[pc].append([sit, desc, type])  # 以sitdesc文件中sit行的先后顺序排序
-    ##剩余部分排序（在sitdesc中未定义中文解释）
+            seq_head[pc].append([sit, desc, type]) # Sort the order of the sit lines in the sitdesc file
+    ##Remaining part sorting (Chinese definition is not defined in sitdesc)
     if len(seq_head[pc]) > 0:
         left = list(head[pc] - set([x[0] for x in seq_head[pc]]))
         left.sort()
-        seq_head[pc].extend([[x, 'Non', 'Non'] for x in left])  # 未找到部分中文解释和类型为空
+        seq_head[pc].extend([[x, 'Non', 'Non'] for x in left])  #Some Chinese explanations and types are not found
     else:
         seq_head[pc].extend([[x, 'Non', 'Non'] for x in head[pc]])
 
@@ -172,13 +174,13 @@ for pc in seq_head.keys():
         sit_list.extend([level, noti])
 
 
-###根据seq_head和outdict生成out字典 
-###key为host, value为situation状态有序列表（按照seq_head中的顺序）
+###Generate out dictionary according to seq_head and outdict
+###key is host, value is the order state list (according to the order in seq_head)
 ## hostA: {UX:[sit1_status,sit2_status], UL:[sit1_status,sit2_status]}
 ## hostB: {UX:[sit1_status,sit2_status], UL:[sit1_status,sit2_status]}
 ## hostC: {UX:[sit1_status,sit2_status], UL:[sit1_status,sit2_status]}
-###以pcl列表为顺序，查询seq_head获取sit顺序，查询outdict获取sit状态
-###sit_status 为字典，key 为instname, value为对应的状态
+### In the order of pcl list, query seq_head to get the order of sit, query outdict to get the state of sit
+###sit_status is a dictionary, the key is instname, and the value is the corresponding state.
 
 out = {}
 for host in newhostlist:
@@ -214,8 +216,9 @@ for host in newhostlist:
 
 
 
-###根据seq_head 和 out 写到csv文件
-###以pcl 为顺序先写seq_head, 再以hosts 为顺序写out
+
+###Write to csv file based on seq_head and out
+###Write seq_head first in order of pcl, then write out in the order of hosts
 hostname = os.uname()[1]
 outf = hostname + '.csv'
 
