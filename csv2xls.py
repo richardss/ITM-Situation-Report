@@ -91,13 +91,13 @@ def write_notiline(str_row=None, str_col=0, cross_col_no=2, csvlineno=None, heig
     ws_sit.row(str_row + 1).height = height
 
     cont_list = lines[csvlineno].split(',')
-    ws_sit.write_merge(str_row, str_row, str_col, str_col + cross_col_no, '邮件通知', style_head)
-    ws_sit.write_merge(str_row + 1, str_row + 1, str_col, str_col + cross_col_no, '短信通知', style_head)
-    for (i, content) in enumerate(cont_list[1:]):
-        if re.match(r'邮件通知', content):
-            ws_sit.write(str_row, i + cross_col_no + 1, 'Y', style_ok)
-            ws_sit.write(str_row + 1, i + cross_col_no + 1, 'N', style_ko)
-        elif re.match(r'邮件和短信通知', content):
+    ws_sit.write_merge(str_row, str_row, str_col, str_col + cross_col_no, 'email notification ', style_head)
+    Ws_sit.write_merge(str_row + 1, str_row + 1, str_col, str_col + cross_col_no, 'sms notification', style_head)
+    For (i, content) in enumerate(cont_list[1:]):
+        If re.match(r'mail notification', content):
+            Ws_sit.write(str_row, i + cross_col_no + 1, 'Y', style_ok)
+            Ws_sit.write(str_row + 1, i + cross_col_no + 1, 'N', style_ko)
+        Elif re.match (r'mail and SMS notifications, content):
             ws_sit.write(str_row, i + cross_col_no + 1, 'Y', style_ok)
             ws_sit.write(str_row + 1, i + cross_col_no + 1, 'Y', style_ok)
         else:
@@ -107,19 +107,19 @@ def write_notiline(str_row=None, str_col=0, cross_col_no=2, csvlineno=None, heig
 def write_pcline(str_row=None, str_col=0, cross_col_no=2, csvlineno=None, height=None, style_head=None, style=None):
     global pc_pos_index
     pc_chndsc = {
-        'UX': 'Unix操作系统',
-        'UL': 'Unix日志',
+        'UX': 'Unix operating system',
+        'UL': 'Unix log',
         'PX': 'AIX LPAR',
-        'UD': 'DB2数据库',
-        'MQ': 'MQ消息队列',
-        'LZ': 'Linux操作系统',
-        'LO': '日志监控LO',
-        'C1': 'DB2日志空间',
-        'C2': '系统交换空间',
-        'C3': '网络端口',
+        'UD': 'DB2 database',
+        'MQ': 'MQ Message Queue',
+        'LZ': 'Linux operating system',
+        'LO': 'Log monitoring LO',
+        'C1': 'DB2 log space',
+        'C2': 'System swap space',
+        'C3': 'network port',
         'C4': 'SNA',
         'C5': 'UAEdge',
-        'C6': 'Linux虚拟内存',
+        'C6': 'Linux virtual memory',
         'C8': 'Ping',
         'C9': 'GPFS',
         }
